@@ -1,13 +1,15 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from pages.base_page import BasePage
-import time
+
 
 class TwitchHomePage(BasePage):
     # --- Locators ---
     SEARCH_ICON = (By.CSS_SELECTOR, 'a[href="/directory"]')
     SEARCH_INPUT = (By.CSS_SELECTOR, 'input[data-a-target="tw-input"]')
-    FIRST_STREAMER_CARD = (By.CSS_SELECTOR, 'div[data-a-target="video-tower-card-0"] img') 
+    STARCRAFT_II_OPTION = (By.CSS_SELECTOR, 'a[href^="/directory/category"]')
+    RANDOM_STREAMER_CARD = (By.CSS_SELECTOR, "article a[href$='/home'].tw-link")
+
     # Note: Selectors on Twitch mobile change frequently. 
     # Using robust attributes like href or type is safer.
     
@@ -32,4 +34,6 @@ class TwitchHomePage(BasePage):
     def enter_text_in_field(self, locator, text):
         self.enter_text(locator, text)
          
+    def scroll_page(self, times=2):
+        return  self.swipe_down(times)
 

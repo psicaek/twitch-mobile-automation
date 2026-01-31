@@ -19,12 +19,12 @@ class BasePage:
         self.logger.info(f"Opened URL: {url}")
     
         try:
-            WebDriverWait(self.driver, 5).until(
+            WebDriverWait(self.driver, 3).until(
             EC.invisibility_of_element_located((By.CSS_SELECTOR, ".loading, .spinner"))
         )
         except TimeoutException:
             self.logger.warning("Loading indicators not dismissed within timeout.")
-            self.driver.save_screenshot("loading_timeout.png")
+            
     
     
         elapsed = time.time() - start_time
@@ -35,6 +35,7 @@ class BasePage:
         return self.wait.until(EC.visibility_of_element_located(locator))
 
     def click(self, locator):
+        
         try:
             self.wait.until(EC.element_to_be_clickable(locator)).click()
             self.logger.info("Clicked element: %s", locator)
@@ -51,15 +52,17 @@ class BasePage:
             self.logger.warning(f"Standard send_keys failed for {locator}, trying JavaScript. Error: {e}")
              
 
-    def scroll_page(self, times=2, pixels=400):
+    def swipe_down(self, times=2, ):
         """
         Scrolls the window vertically.
         Requirement: 'scroll down 2 times'
         """
         for _ in range(times):
-            self.driver.execute_script(f"window.scrollBy(0, {pixels});")
-            time.sleep(1)  # Allow UI to settle (critical for mobile scrolling)
-
+            self.driver.execute_script("window.scrollBy(0, window.innerHeight );")
+            self.logger.info(f"Scrolled down  pixels.")
+             
+            time.sleep(0.5)  # Allow UI to settle (critical for mobile scrolling)
+            
    
     def popup_handler(self, popup_locator, accept_locator):
         """
@@ -67,9 +70,9 @@ class BasePage:
         Checks for popup presence and clicks accept if found.
         """
         try:
-            popup = self.wait.until(EC.visibility_of_element_located(popup_locator))
+            
             popup_accept = self.wait.until(EC.element_to_be_clickable(accept_locator))
-            if popup.is_displayed() and popup_accept.is_displayed():
+            if  popup_accept.is_displayed():
                 self.logger.info("Popup detected, attempting to accept.")
                 
                 self.click(accept_locator)
@@ -90,4 +93,27 @@ class BasePage:
             self.logger.info("No popup detected.")  
 
        
-            
+    def wait_for_page_to_load(self, timeout=3):
+        """
+        Waits for the page to load by checking for the absence of loading indicators.
+        """
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                EC.invisibility_of_element_located((By.CSS_SELECTOR, ".loading, .spinner"))
+            )
+            self.logger.info("✓ Page loaded successfully.")
+        except TimeoutException:
+            self.logger.error("✗ Page did not load within the timeout period.")
+                
+
+
+    def is_in_viewport(self,element):
+        return self.driver.execute_script("""
+        const element = arguments[0];
+        const rect = element.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+        
+        return (rect.top >= 0) && (rect.bottom <= windowHeight) && 
+               (rect.left >= 0) && (rect.right <= windowWidth);
+        """, element)
