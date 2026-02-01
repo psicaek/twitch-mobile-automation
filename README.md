@@ -63,3 +63,7 @@ This framework automates the following test case on Twitch mobile:
 5.  Select a random streamer from results
 
 **All steps include assertions to validate expected behavior.**
+
+## Demo
+
+![Test Execution](demo.gif)
