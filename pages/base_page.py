@@ -1,8 +1,5 @@
 import logging
-from os import times
-from socket import timeout
 import time
-from tracemalloc import start
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC

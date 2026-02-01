@@ -1,3 +1,4 @@
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from pages.base_page import BasePage
@@ -142,11 +143,11 @@ class TwitchHomePage(BasePage):
         )
         return visible_streamers
 
-    def handle_mature_content_popup(self, timeout=3):
+    def handle_mature_content_popup(self):
         """Handle mature content warning that some streamers show"""
         try:
             mature_button = self.wait.until(
-                EC.element_to_be_clickable(self.MATURE_WARNING), timeout=timeout
+                EC.element_to_be_clickable(self.MATURE_WARNING)
             )
             self.logger.info("Mature content warning detected.")
             mature_button.click()
