@@ -1,3 +1,4 @@
+from time import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from pages.base_page import BasePage
@@ -20,7 +21,7 @@ class TwitchHomePage(BasePage):
     COOKIE_ACCEPT = (By.CSS_SELECTOR, 'button[data-a-target="consent-banner-accept"]')
     MATURE_WARNING = (
         By.CSS_SELECTOR,
-        'button[data-a-target="player-overlay-mature-accept"]',
+        'button[data-a-target="content-classification-gate-overlay-start-watching-button"]',
     )
 
     def navigate_to_twitch(self):
@@ -48,6 +49,7 @@ class TwitchHomePage(BasePage):
             try:
                 self.perform_click(streamer)
                 self.wait_for_page_to_load()
+                self.handle_mature_content_popup()
                 self.driver.save_screenshot("streamer_selected.png")
 
                 return True
@@ -136,3 +138,15 @@ class TwitchHomePage(BasePage):
             f"✓ Found {len(visible_streamers)} visible/clickable streamers"
         )
         return visible_streamers
+
+    def handle_mature_content_popup(self):
+        """Handle mature content warning that some streamers show"""
+        try:
+            mature_button = self.wait.until(
+                EC.element_to_be_clickable(self.MATURE_WARNING)
+            )
+            self.logger.info("Mature content warning detected.")
+            mature_button.click()
+            self.logger.info("✓ Mature content warning accepted")
+        except:
+            self.logger.info("No mature content warning present")

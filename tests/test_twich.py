@@ -53,9 +53,17 @@ def test_twitch_mobile_search_flow(driver):
     twitch.wait_for_page_to_load()
 
     # 4. Scroll down 2 times
-    twitch.scroll_page(times=2)
+    initial_count = twitch.assert_search_results_loaded("StarCraft II")
+    driver.save_screenshot("03_before_scroll.png")
+
+    current_count = initial_count
+    for i in range(2):
+        twitch.scroll_page(times=1)
+        current_count = twitch.assert_more_content_after_scroll(current_count)
+        driver.save_screenshot(f"04_after_scroll_{i+1}.png")
 
     #
     # 5. Select a streamer
     streamer_selected = twitch.select_random_streamer()
     assert streamer_selected, "Failed to select any streamer after multiple attempts"
+    twitch.assert_on_streamer_page()
