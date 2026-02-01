@@ -1,13 +1,9 @@
-import pytest
 from pages.twitch_page import TwitchHomePage
-from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.common.exceptions import StaleElementReferenceException
-import random
+
 
 from tests.conftest import driver
 
 
-@pytest.mark.repeat(10)
 def test_twitch_mobile_search_flow(driver):
     """
     Test Case:

@@ -1,9 +1,12 @@
-from time import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from pages.base_page import BasePage
-from selenium.common.exceptions import StaleElementReferenceException
-from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.common.exceptions import (
+    StaleElementReferenceException,
+    ElementClickInterceptedException,
+    TimeoutException,
+)
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class TwitchHomePage(BasePage):
@@ -139,14 +142,14 @@ class TwitchHomePage(BasePage):
         )
         return visible_streamers
 
-    def handle_mature_content_popup(self):
+    def handle_mature_content_popup(self, timeout=3):
         """Handle mature content warning that some streamers show"""
         try:
             mature_button = self.wait.until(
-                EC.element_to_be_clickable(self.MATURE_WARNING)
+                EC.element_to_be_clickable(self.MATURE_WARNING), timeout=timeout
             )
             self.logger.info("Mature content warning detected.")
             mature_button.click()
             self.logger.info("✓ Mature content warning accepted")
-        except:
+        except TimeoutException:
             self.logger.info("No mature content warning present")
