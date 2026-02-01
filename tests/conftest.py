@@ -30,8 +30,6 @@ def driver():
         # Fallback to system-installed ChromeDriver
         driver = webdriver.Chrome(options=options)
 
-    driver.implicitly_wait(5)  # Soft wait as backup
-
     yield driver
 
     driver.quit()
