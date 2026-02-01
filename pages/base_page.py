@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from utils.config import Config, LocatorSelectors, Messages
 
 
 class BasePage:
@@ -22,7 +23,7 @@ class BasePage:
 
         elapsed = time.time() - start_time
         self.logger.info(f"✓ Page fully loaded in {elapsed:.2f}s")
-        self.driver.save_screenshot("load_page.png")
+        self.driver.save_screenshot(Config.SCREENSHOT_HOME)
 
     def find(self, locator):
         return self.wait.until(EC.visibility_of_element_located(locator))
@@ -140,15 +141,8 @@ class BasePage:
         More reliable than waiting for skeletons to disappear.
         """
 
-        content_indicators = [
-            '[data-a-target="tw-core-button-label-text"]',  # Buttons loaded
-            ".tw-card",  # Cards loaded
-            ".ScCoreLink-sc-16kq0mq-0",  # Links loaded
-            'img[src*="static-cdn.jtvnw.net"]',  # Images loaded
-        ]
-
         content_found = False
-        for selector in content_indicators:
+        for selector in LocatorSelectors.CONTENT_INDICATORS:
             try:
                 WebDriverWait(self.driver, timeout).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, selector))
@@ -169,16 +163,8 @@ class BasePage:
         Strategy 2: Check for skeleton/loading states to disappear.
         Uses short timeout since skeletons might not exist on all pages.
         """
-        skeleton_selectors = [
-            '[class*="skeleton"]',
-            '[class*="loading"]',
-            '[class*="ScSkeletonWrapper"]',
-            ".tw-skeleton",
-            '[aria-label*="Loading"]',
-            '[data-a-target*="loading"]',
-        ]
 
-        for selector in skeleton_selectors:
+        for selector in LocatorSelectors.SKELETON_SELECTORS:
             try:
                 WebDriverWait(self.driver, timeout).until(
                     EC.invisibility_of_element_located((By.CSS_SELECTOR, selector))
@@ -240,7 +226,7 @@ class BasePage:
             lambda d: d.execute_script(script, stable_time)
         )
 
-        self.logger.info("✓ DOM stable")
+        self.logger.info(Messages.STABLE_DOM)
 
     # Assertion Methods
 

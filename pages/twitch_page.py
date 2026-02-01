@@ -8,29 +8,24 @@ from selenium.common.exceptions import (
     TimeoutException,
 )
 from selenium.webdriver.support import expected_conditions as EC
+from utils.config import Config, Messages
+from utils.Twitch_locators import TwitchLocators
 
 
 class TwitchHomePage(BasePage):
     # --- Locators ---
-    SEARCH_ICON = (By.CSS_SELECTOR, 'a[href="/directory"]')
-    SEARCH_INPUT = (By.CSS_SELECTOR, 'input[data-a-target="tw-input"]')
-    STARCRAFT_II_OPTION = (By.CSS_SELECTOR, 'a[href^="/directory/category"]')
-    RANDOM_STREAMER_CARD = (By.CSS_SELECTOR, "article a[href$='/home'].tw-link")
+    SEARCH_ICON = TwitchLocators.SEARCH_ICON
+    SEARCH_INPUT = TwitchLocators.SEARCH_INPUT
+    STARCRAFT_II_OPTION = TwitchLocators.SEARCH_SUGGESTION
+    RANDOM_STREAMER_CARD = TwitchLocators.STREAMER_CARD
 
-    # Note: Selectors on Twitch mobile change frequently.
-    # Using robust attributes like href or type is safer.
-
-    # Popups
-    COOKIE_BANNER = (By.CSS_SELECTOR, 'div[data-a-target="consent-banner"]')
-    COOKIE_ACCEPT = (By.CSS_SELECTOR, 'button[data-a-target="consent-banner-accept"]')
-    MATURE_WARNING = (
-        By.CSS_SELECTOR,
-        'button[data-a-target="content-classification-gate-overlay-start-watching-button"]',
-    )
+    COOKIE_BANNER = TwitchLocators.COOKIE_BANNER
+    COOKIE_ACCEPT = TwitchLocators.COOKIE_ACCEPT
+    MATURE_WARNING = TwitchLocators.MATURE_WARNING
 
     def navigate_to_twitch(self):
 
-        self.open_url("https://m.twitch.tv/")
+        self.open_url(Config.TWITCH_URL)
 
     def handle_popup(self):
         self.popup_handler(self.COOKIE_BANNER, self.COOKIE_ACCEPT)
@@ -54,7 +49,7 @@ class TwitchHomePage(BasePage):
                 self.perform_click(streamer)
                 self.wait_for_page_to_load()
                 self.handle_mature_content_popup()
-                self.driver.save_screenshot("streamer_selected.png")
+                self.driver.save_screenshot(Config.SCREENSHOT_STREAMER)
 
                 return True
             except (StaleElementReferenceException, ElementClickInterceptedException):
@@ -65,23 +60,21 @@ class TwitchHomePage(BasePage):
 
     def assert_on_home_page(self):
         """Verify we're on Twitch home page"""
-        self.assert_url_contains("twitch.tv", "Should be on Twitch domain")
-        self.assert_element_visible(
-            self.SEARCH_ICON, "Search icon should be visible on home page"
-        )
-        self.logger.info("✓ Successfully on Twitch home page")
+        self.assert_url_contains("twitch.tv", Messages.URL_TWITCH_DOMAIN)
+        self.assert_element_visible(self.SEARCH_ICON, Messages.SEARCH_ICON_VISIBLE)
+        self.logger.info(Messages.HOME_PAGE_SUCCESS)
 
     def assert_search_opened(self):
         """Verify search interface is open"""
-        self.assert_element_visible(self.SEARCH_INPUT, "Search input should be visible")
+        self.assert_element_visible(self.SEARCH_INPUT, Messages.SEARCH_INPUT_VISIBLE)
         search_input = self.driver.find_element(*self.SEARCH_INPUT)
-        assert search_input.is_enabled(), "Search input should be enabled"
-        self.logger.info("✓ Search interface opened successfully")
+        assert search_input.is_enabled(), Messages.SEARCH_INPUT_ENABLED
+        self.logger.info(Messages.SEARCH_OPENED_SUCCESS)
 
     def assert_search_results_loaded(self, search_term):
         """Verify search results page loaded with content"""
         # Check URL contains search context
-        self.assert_url_contains("/directory", "Should be on directory/search page")
+        self.assert_url_contains("/directory", Messages.URL_DIRECTORY_PAGE)
 
         # Verify streamer cards are present
         streamers = self.assert_element_count_greater_than(
@@ -149,8 +142,8 @@ class TwitchHomePage(BasePage):
             mature_button = self.wait.until(
                 EC.element_to_be_clickable(self.MATURE_WARNING)
             )
-            self.logger.info("Mature content warning detected.")
+            self.logger.info(Messages.MATURE_DETECTED)
             mature_button.click()
-            self.logger.info("✓ Mature content warning accepted")
+            self.logger.info(Messages.MATURE_POPUP_HANDLED)
         except TimeoutException:
-            self.logger.info("No mature content warning present")
+            self.logger.info(Messages.MATURE_POPUP_NOT_PRESENT)
