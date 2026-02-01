@@ -52,7 +52,7 @@ A scalable Selenium-based test automation framework for Twitch mobile web applic
      pytest tests/test_twich.py -v
    ```
 
-## 🎯 Test Scenario
+## Test Scenario
 
 This framework automates the following test case on Twitch mobile:
 

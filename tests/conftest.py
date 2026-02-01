@@ -19,7 +19,6 @@ def driver():
     }
     options.add_experimental_option("prefs", prefs)
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
     # Initialize Driver
     try:
         service = Service(ChromeDriverManager().install())
@@ -28,9 +27,7 @@ def driver():
         print(f"webdriver-manager failed: {e}")
         print("Attempting to use system ChromeDriver...")
         driver = webdriver.Chrome(options=options)
-
-    # Set page load timeout
-    # driver.set_page_load_timeout(Config.PAGE_LOAD_TIMEOUT)
+        driver.set_window_size(400, 1100)
 
     yield driver
 
